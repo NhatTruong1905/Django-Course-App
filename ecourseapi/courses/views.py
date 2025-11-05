@@ -1,4 +1,8 @@
-from django.http import HttpResponse
+from rest_framework import viewsets,generics
+from courses import serializers
+from courses.models import Category
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+
+class CategoryView(viewsets.ViewSet,generics.ListAPIView):
+    queryset = Category.objects.all()
+    serializer_class = serializers.CategorySerializer
