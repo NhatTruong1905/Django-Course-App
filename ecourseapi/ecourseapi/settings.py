@@ -43,6 +43,16 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
 ]
+
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
+cloudinary.config(
+    cloud_name="dice7ntoz",
+    api_key="612169173853894",
+    api_secret="VWRS0PV-HtSzo3OtuUksPfBAWpg"
+)
 CKEDITOR_UPLOAD_PATH = "images/ckeditor/"
 
 MIDDLEWARE = [

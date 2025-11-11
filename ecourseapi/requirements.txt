@@ -1,5 +1,7 @@
 asgiref==3.10.0
+certifi==2025.10.5
 cffi==2.0.0
+cloudinary==1.44.1
 cryptography==46.0.3
 Django==5.2.7
 django-ckeditor==6.7.3
@@ -13,6 +15,8 @@ pycparser==2.23
 PyMySQL==1.1.2
 pytz==2025.2
 PyYAML==6.0.3
+six==1.17.0
 sqlparse==0.5.3
 tzdata==2025.2
 uritemplate==4.2.0
+urllib3==2.5.0
