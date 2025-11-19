@@ -2,9 +2,12 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from ckeditor.fields import RichTextField
 from cloudinary.models import CloudinaryField
+from django.db.models import CASCADE
+from packaging.tags import Tag
+
 
 class User(AbstractUser):
-    pass
+    avatar = CloudinaryField(null=True)
 
 
 class Category(models.Model):
@@ -26,7 +29,7 @@ class BaseModel(models.Model):
 class Course(BaseModel):
     subject = models.CharField(max_length=255)
     description = models.TextField(null=True)
-    image = CloudinaryField() #models.ImageField(upload_to='courses/%Y/%m', null=True)
+    image = CloudinaryField(null=True)  # models.ImageField(upload_to='courses/%Y/%m', null=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -35,12 +38,38 @@ class Course(BaseModel):
 
 class Lesson(BaseModel):
     subject = models.CharField(max_length=255)
-    content = RichTextField()
-    image = CloudinaryField() #models.ImageField(upload_to='lessons/%Y/%m', null=True)
+    content = RichTextField(null=False)
+    image = CloudinaryField(null=True)  # models.ImageField(upload_to='lessons/%Y/%m', null=True)
     course = models.ForeignKey(Course, on_delete=models.RESTRICT)
+    tags = models.ManyToManyField('Tag')
 
     def __str__(self):
         return self.subject
 
     class Meta:
         unique_together = ('subject', 'course')
+
+
+class Tag(BaseModel):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Interaction(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, null=False)
+
+    class Meta:
+        abstract = True
+
+
+class Comment(Interaction):
+    content = models.TextField(null=False)
+
+
+class Like(Interaction):
+    class Meta:
+        unique_together = ('user', 'lesson')
+

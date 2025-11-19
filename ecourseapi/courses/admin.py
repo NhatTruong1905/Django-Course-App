@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.db.models import Count
 from django.template.response import TemplateResponse
 from django.utils.safestring import mark_safe
-from courses.models import Course, Category, Lesson
+from courses.models import Course, Category, Lesson, Tag, Comment, Like
 from django import forms
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django.urls import path
@@ -39,16 +39,19 @@ class MyAdminSite(admin.AdminSite):
     site_header = 'Course Online'
 
     def get_urls(self):
-        return [path('course-stats/',self.stats_view)] + super().get_urls()
+        return [path('course-stats/', self.stats_view)] + super().get_urls()
 
     def stats_view(self, request):
         # [{'id': 1, 'name': 'Software Engineering', 'count': 4}, {'id': 2, 'name': 'Artificial Intelligence', 'count': 1}, {'id': 3, 'name': 'Data Sciences', 'count': 1}]>
-        stats = Category.objects.annotate(count=Count('course')).values('id','name','count')
-        return TemplateResponse(request, 'admin/stats.html',{'stats': stats})
+        stats = Category.objects.annotate(count=Count('course')).values('id', 'name', 'count')
+        return TemplateResponse(request, 'admin/stats.html', {'stats': stats})
 
 
 admin_site = MyAdminSite(name='eCourse')
 
 admin_site.register(Category)
+admin_site.register(Tag)
+admin_site.register(Comment)
+admin_site.register(Like)
 admin_site.register(Course, CourseAdmin)
 admin_site.register(Lesson, LessonAdmin)

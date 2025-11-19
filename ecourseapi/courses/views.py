@@ -1,10 +1,12 @@
-from rest_framework import viewsets, generics, status
+from pickle import FALSE
+
+from rest_framework import viewsets, generics, status, parsers, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from courses import serializers
 from courses.paginators import ItemPaginator
-from courses.models import Category, Course
+from courses.models import Category, Course, Lesson, User
 
 
 class CategoryView(viewsets.ViewSet, generics.ListAPIView):
@@ -35,3 +37,30 @@ class CourseView(viewsets.ViewSet, generics.ListAPIView):
         lessons = self.get_object().lesson_set.filter(active=True)
 
         return Response(serializers.LessonSerializer(lessons, many=True).data, status=status.HTTP_200_OK)
+
+
+class LessonView(viewsets.ViewSet, generics.RetrieveAPIView):
+    queryset = Lesson.objects.prefetch_related('tags').filter(active=True)
+    serializer_class = serializers.LessonDetailSerializer
+
+    @action(methods=['get'], url_path='comments', detail=True)
+    def get_comment(self, request, pk):
+        comments = self.get_object().comment_set.select_related('user').filter(active=True)
+        return Response(serializers.CommentSerializer(comments, many=True).data, status=status.HTTP_200_OK)
+
+
+class UserView(viewsets.ViewSet, generics.CreateAPIView):
+    queryset = User.objects.filter(is_active=True)
+    serializer_class = serializers.UserSerializer
+    parser_classes = [parsers.MultiPartParser]
+
+    @action(methods=['get', 'patch'], url_path='current-user', detail=False,
+            permission_classes=[permissions.IsAuthenticated])
+    def get_current_user(self, request):
+        u = request.user
+        if request.method.__eq__('PATCH'):
+            for k, v in request.data.items():
+                if k in ['first_name', 'last_name', 'email']:
+                    setattr(u, k, v)
+            u.save()
+        return Response(serializers.UserSerializer(u).data, status=status.HTTP_200_OK)
