@@ -68,8 +68,9 @@ class Interaction(BaseModel):
 class Comment(Interaction):
     content = models.TextField(null=False)
 
+    def __str__(self):
+        return self.content
 
 class Like(Interaction):
     class Meta:
         unique_together = ('user', 'lesson')
-
